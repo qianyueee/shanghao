@@ -54,7 +54,7 @@ function HomeRoute() {
   const groupParam = params.get('group');
   const groupId = groupParam || myGroups?.[0]?.id || null;
 
-  const { group, members, loading } = useGroupData(groupId);
+  const { group, members, loading, applyStatusRow } = useGroupData(groupId);
   const [notifyOn, setNotifyOn] = useState(false);
 
   useEffect(() => {
@@ -97,11 +97,12 @@ function HomeRoute() {
 
   const handleSave = async (edit) => {
     try {
-      await setMyStatus({
+      const row = await setMyStatus({
         status: edit.status,
         untilMinutes: edit.until,
         note: edit.note,
       });
+      applyStatusRow(row);
     } catch (e) {
       console.warn('setMyStatus failed', e);
     }
@@ -110,7 +111,8 @@ function HomeRoute() {
 
   const joinCall = async () => {
     try {
-      await setMyStatus({ status: 'free', untilMinutes: 60, note: '来了' });
+      const row = await setMyStatus({ status: 'free', untilMinutes: 60, note: '来了' });
+      applyStatusRow(row);
     } catch (e) {
       console.warn('join call failed', e);
     }

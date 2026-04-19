@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { supabase } from './supabase.js';
 import { listGroupMembers } from './groups.js';
 import { listStatusesForUsers, effectiveStatus } from './statuses.js';
@@ -109,6 +109,17 @@ export function useGroupData(groupId) {
     return () => clearInterval(id);
   }, []);
 
+  const applyStatusRow = useCallback((row) => {
+    if (!row?.user_id) return;
+    setStatusRows(rs => {
+      const i = rs.findIndex(r => r.user_id === row.user_id);
+      if (i === -1) return [...rs, row];
+      const copy = rs.slice();
+      copy[i] = row;
+      return copy;
+    });
+  }, []);
+
   const enrichedMembers = useMemo(() => {
     return members.map(m => {
       const row = statusRows.find(r => r.user_id === m.id);
@@ -126,5 +137,5 @@ export function useGroupData(groupId) {
     });
   }, [members, statusRows, now]);
 
-  return { group, members: enrichedMembers, loading, error };
+  return { group, members: enrichedMembers, loading, error, applyStatusRow };
 }
