@@ -180,13 +180,13 @@ function SectionLabel({ theme, label, en, count, color }) {
   );
 }
 
-function BottomTabBar({ theme }) {
+function BottomTabBar({ theme, onMeTap }) {
   const t = theme;
   const isCream = t.key === 'cream';
   const items = [
     { icon: 'home', label: '群友', active: true },
     { icon: 'bell', label: '动态' },
-    { icon: 'me',   label: '我' },
+    { icon: 'me',   label: '我', onTap: onMeTap },
   ];
   return (
     <div style={{
@@ -202,13 +202,14 @@ function BottomTabBar({ theme }) {
       boxShadow: isCream ? '3px 3px 0 #1a1a1a' : '0 6px 20px rgba(0,0,0,0.12)',
     }}>
       {items.map((item, i) => (
-        <div key={i} style={{
+        <div key={i} onClick={item.onTap} style={{
           flex: 1, height: 48,
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
           borderRadius: isCream ? 16 : 999,
           background: item.active ? (t.dark ? 'rgba(255,255,255,0.1)' : t.accent) : 'transparent',
           color: item.active ? (t.dark ? t.accent : (t.key === 'cream' ? '#fff' : '#1a0a1f')) : t.textMuted,
           fontFamily: t.font.body, fontSize: 13, fontWeight: 600,
+          cursor: item.onTap ? 'pointer' : 'default',
         }}>
           <TabIcon kind={item.icon} size={18} />
           {item.label}
@@ -240,7 +241,7 @@ function TabIcon({ kind, size }) {
   );
 }
 
-export function HomeScreen({ group, me, onStatusTap, onTriggerNotify, notifyActive, onSwitchGroup, onSignOut }) {
+export function HomeScreen({ group, me, onStatusTap, onTriggerNotify, notifyActive, onSwitchGroup, onMeTap }) {
   const t = useTheme();
   const isCyber = t.key === 'cyber';
   const isCream = t.key === 'cream';
@@ -297,20 +298,6 @@ export function HomeScreen({ group, me, onStatusTap, onTriggerNotify, notifyActi
             <circle cx="18" cy="6" r="3" fill={t.accent}/>
           </svg>
         </button>
-        {onSignOut && (
-          <button onClick={onSignOut} title="退出登录" style={{
-            width: 44, height: 44, borderRadius: 999,
-            background: t.surface, border: `1px solid ${t.border}`,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: isCream ? '2px 2px 0 #1a1a1a' : 'none',
-            cursor: 'pointer', padding: 0, flexShrink: 0,
-          }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path d="M15 5H6a1 1 0 00-1 1v12a1 1 0 001 1h9" stroke={t.text} strokeWidth="2" strokeLinecap="round"/>
-              <path d="M13 12h8m0 0l-3-3m3 3l-3 3" stroke={t.text} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
-        )}
       </div>
 
       <div style={{
@@ -368,7 +355,7 @@ export function HomeScreen({ group, me, onStatusTap, onTriggerNotify, notifyActi
         </div>
       </div>
 
-      <BottomTabBar theme={t} />
+      <BottomTabBar theme={t} onMeTap={onMeTap} />
 
       <style>{`@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.55; } }`}</style>
     </Phone>

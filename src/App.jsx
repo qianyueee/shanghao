@@ -5,7 +5,7 @@ import { JoinScreen } from './screens/Join.jsx';
 import { HomeScreen } from './screens/Home.jsx';
 import { StatusSheet } from './screens/StatusSheet.jsx';
 import { NotifyBanner } from './screens/NotifyBanner.jsx';
-import { ThemeSwitcher } from './components/ThemeSwitcher.jsx';
+import { MeSheet } from './screens/MeSheet.jsx';
 import { RequireAuth } from './components/RequireAuth.jsx';
 import { useAuth } from './lib/auth.jsx';
 import { listMyGroups } from './lib/groups.js';
@@ -50,6 +50,7 @@ function HomeRoute() {
   }, [user?.id]);
 
   const sheetOpen = params.get('sheet') === '1';
+  const meOpen = params.get('me') === '1';
   const groupParam = params.get('group');
   const groupId = groupParam || myGroups?.[0]?.id || null;
 
@@ -129,8 +130,25 @@ function HomeRoute() {
         onTriggerNotify={() => setNotifyOn(true)}
         notifyActive={notifyOn}
         onSwitchGroup={() => navigate('/join')}
-        onSignOut={signOut}
+        onMeTap={() => {
+          const sp = new URLSearchParams(location.search);
+          sp.set('me', '1');
+          navigate(`${location.pathname}?${sp.toString()}`);
+        }}
       />
+      {meOpen && (
+        <MeSheet
+          profile={profile}
+          email={user?.email}
+          onClose={() => {
+            const sp = new URLSearchParams(location.search);
+            sp.delete('me');
+            const qs = sp.toString();
+            navigate(`${location.pathname}${qs ? '?' + qs : ''}`);
+          }}
+          onSignOut={signOut}
+        />
+      )}
       {sheetOpen && (
         <StatusSheet
           me={me}
@@ -157,7 +175,6 @@ function HomeRoute() {
 export default function App() {
   return (
     <>
-      <ThemeSwitcher />
       <Routes>
         <Route path="/" element={<WelcomeRoute />} />
         <Route path="/welcome" element={<WelcomeRoute />} />
