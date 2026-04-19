@@ -145,7 +145,7 @@ export function StatusSheet({ me, onClose, onSave }) {
           boxShadow: isCream ? '4px 4px 0 #1a1a1a' : (isCyber ? `0 0 24px ${t.accent}66` : '0 4px 16px rgba(0,0,0,0.15)'),
           cursor: 'pointer',
         }}>
-          确定 · 我这就上号
+          确定
         </button>
       </div>
     </div>

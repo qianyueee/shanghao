@@ -434,7 +434,7 @@ function CreatePane({ theme: t, name, setName, creating, onCreate, created, onEn
         <input
           value={name}
           onChange={e => setName(e.target.value.slice(0, 20))}
-          placeholder="例如:峡谷小分队"
+          placeholder="给群起个名字"
           style={{
             width: '100%', border: 'none', outline: 'none',
             background: 'transparent',
