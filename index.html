@@ -2,278 +2,32 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>上号吗 — Mobile Prototype</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0A0A0F">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="上号吗">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="apple-touch-icon" href="icon.svg">
+<title>上号吗</title>
+<script>
+  // SPA GH Pages — restore path from 404 redirect
+  (function(l){
+    if (l.search[1] === '/') {
+      var decoded = l.search.slice(1).split('&').map(function(s){
+        return s.replace(/~and~/g, '&');
+      }).join('?');
+      window.history.replaceState(null, null, l.pathname.slice(0, -1) + decoded + l.hash);
+    }
+  }(window.location));
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
-<style>
-  html, body {
-    margin: 0; padding: 0;
-    background: #EDEAE3;
-    font-family: 'Space Grotesk', 'Noto Sans SC', system-ui, sans-serif;
-    color: #1a1a1a;
-    -webkit-font-smoothing: antialiased;
-    min-height: 100vh;
-  }
-  * { box-sizing: border-box; }
-  .page {
-    max-width: 1600px;
-    margin: 0 auto;
-    padding: 48px 40px 120px;
-  }
-  .intro {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 40px;
-    margin-bottom: 56px;
-    align-items: end;
-  }
-  .title-block h1 {
-    font-family: 'ZCOOL KuaiLe', 'Noto Sans SC', sans-serif;
-    font-size: 84px;
-    line-height: 0.95;
-    margin: 0 0 12px;
-    letter-spacing: -0.02em;
-  }
-  .title-block h1 .accent {
-    color: #E8452C;
-  }
-  .title-block .sub {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: rgba(0,0,0,0.55);
-    margin: 0 0 24px;
-  }
-  .meta {
-    font-size: 14px;
-    line-height: 1.55;
-    color: rgba(0,0,0,0.72);
-    max-width: 540px;
-  }
-  .meta b { color: #1a1a1a; }
-  .meta .kbd {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    background: rgba(0,0,0,0.06);
-    padding: 2px 8px;
-    border-radius: 4px;
-  }
-  .section-label {
-    display: flex;
-    align-items: baseline;
-    gap: 16px;
-    margin: 80px 0 24px;
-    padding-bottom: 14px;
-    border-bottom: 1px solid rgba(0,0,0,0.18);
-  }
-  .section-label .num {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    color: rgba(0,0,0,0.5);
-    letter-spacing: 0.1em;
-  }
-  .section-label h2 {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 28px;
-    font-weight: 600;
-    margin: 0;
-    letter-spacing: -0.01em;
-  }
-  .section-label .desc {
-    margin-left: auto;
-    font-size: 13px;
-    color: rgba(0,0,0,0.55);
-    max-width: 380px;
-    text-align: right;
-  }
-
-  /* Theme selector */
-  .theme-bar {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    align-items: center;
-    padding: 14px 18px;
-    background: #fff;
-    border-radius: 18px;
-    margin-bottom: 32px;
-    border: 1px solid rgba(0,0,0,0.08);
-  }
-  .theme-bar .label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: rgba(0,0,0,0.55);
-    margin-right: 8px;
-  }
-  .theme-btn {
-    display: flex; align-items: center; gap: 8px;
-    padding: 8px 14px 8px 8px;
-    border-radius: 12px;
-    border: 1.5px solid rgba(0,0,0,0.1);
-    background: #fafafa;
-    font-family: 'Space Grotesk', 'Noto Sans SC', sans-serif;
-    font-weight: 500;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.15s ease;
-  }
-  .theme-btn:hover { transform: translateY(-1px); }
-  .theme-btn.active {
-    border-color: #1a1a1a;
-    background: #1a1a1a;
-    color: #fff;
-  }
-  .swatch { width: 22px; height: 22px; border-radius: 6px; flex-shrink: 0; }
-  .theme-btn .name-zh { font-family: 'ZCOOL KuaiLe', sans-serif; font-size: 16px; }
-
-  /* Screens grid */
-  .screens {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(402px, 1fr));
-    gap: 48px 32px;
-    justify-items: center;
-  }
-  .screen-wrap {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 16px;
-  }
-  .screen-caption {
-    text-align: center;
-    max-width: 360px;
-  }
-  .screen-caption .cap-num {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    color: rgba(0,0,0,0.5);
-    letter-spacing: 0.12em;
-    margin-bottom: 6px;
-  }
-  .screen-caption .cap-title {
-    font-family: 'Space Grotesk', sans-serif;
-    font-weight: 600;
-    font-size: 18px;
-    margin-bottom: 4px;
-  }
-  .screen-caption .cap-desc {
-    font-size: 13px;
-    color: rgba(0,0,0,0.62);
-    line-height: 1.5;
-  }
-
-  /* Loading placeholder */
-  .loading {
-    width: 402px; height: 874px;
-    border-radius: 48px;
-    background: #fff;
-    display: flex; align-items: center; justify-content: center;
-    color: rgba(0,0,0,0.4);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    border: 1px dashed rgba(0,0,0,0.2);
-  }
-</style>
 </head>
 <body>
-
-<div class="page">
-
-  <div class="intro">
-    <div class="title-block">
-      <div class="sub">mobile webapp · prototype v1 · 2026</div>
-      <h1>上<span class="accent">号</span>吗<span class="accent">?</span></h1>
-    </div>
-    <div class="meta">
-      <b>开黑召集小工具。</b>群友登录后更新自己的状态（空闲 / 忙碌 / 睡觉 / 自定义），
-      同群的人能一眼看到谁在线。当 <b>3 人及以上同时空闲</b> 时，顶部会弹出横幅通知，
-      一键喊上号。通过邀请码加群，头像 + 昵称区分身份。
-      <br><br>
-      下方展示 <b>3 种视觉风格</b> 探索，切换 <span class="kbd">1</span> / <span class="kbd">2</span> / <span class="kbd">3</span> 可直接换主题。
-      每屏都是可交互 React 组件，点按可切换状态 / 设置时长 / 触发通知等。
-    </div>
-  </div>
-
-  <div class="theme-bar" id="theme-bar">
-    <span class="label">Theme</span>
-    <button class="theme-btn active" data-theme="cyber">
-      <span class="swatch" style="background: linear-gradient(135deg, #0A0A0F 0%, #00FF88 50%, #B84DFF 100%);"></span>
-      <span class="name-zh">赛博荧光</span>
-      <span style="opacity:.5;font-family:'JetBrains Mono';font-size:11px;">CYBER</span>
-    </button>
-    <button class="theme-btn" data-theme="candy">
-      <span class="swatch" style="background: linear-gradient(135deg, #FFE9A8 0%, #FF7EB6 50%, #FFB547 100%);"></span>
-      <span class="name-zh">糖果波普</span>
-      <span style="opacity:.5;font-family:'JetBrains Mono';font-size:11px;">CANDY</span>
-    </button>
-    <button class="theme-btn" data-theme="cream">
-      <span class="swatch" style="background: linear-gradient(135deg, #F3EBDA 0%, #E8452C 50%, #3350D8 100%);"></span>
-      <span class="name-zh">奶油Y2K</span>
-      <span style="opacity:.5;font-family:'JetBrains Mono';font-size:11px;">CREAM</span>
-    </button>
-    <div style="flex:1"></div>
-    <span style="font-family:'JetBrains Mono';font-size:11px;color:rgba(0,0,0,0.45);">
-      点击主屏上的状态条可切换自己的状态 · 切到 3 人空闲会触发通知
-    </span>
-  </div>
-
-  <div class="section-label">
-    <span class="num">01 / FLOW</span>
-    <h2>Main Flow</h2>
-    <span class="desc">登录 → 加入群 → 主界面 → 切换状态 → 触发召集通知</span>
-  </div>
-
-  <div class="screens" id="flow-screens">
-    <div class="loading">Loading React…</div>
-  </div>
-
-</div>
-
-<!-- React -->
-<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
-
-<!-- Components -->
-<script type="text/babel" src="ios-frame.jsx"></script>
-<script type="text/babel" src="data.jsx"></script>
-<script type="text/babel" src="themes.jsx"></script>
-<script type="text/babel" src="screens/phone.jsx"></script>
-<script type="text/babel" src="screens/welcome.jsx"></script>
-<script type="text/babel" src="screens/join.jsx"></script>
-<script type="text/babel" src="screens/home.jsx"></script>
-<script type="text/babel" src="screens/status-sheet.jsx"></script>
-<script type="text/babel" src="screens/notify.jsx"></script>
-<script type="text/babel" src="app.jsx"></script>
-
-<script>
-  // Theme persistence + hotkeys
-  const savedTheme = localStorage.getItem('shanghao_theme') || 'cyber';
-  window.__theme = savedTheme;
-  document.addEventListener('DOMContentLoaded', () => {
-    const bar = document.getElementById('theme-bar');
-    const update = (t) => {
-      window.__theme = t;
-      localStorage.setItem('shanghao_theme', t);
-      bar.querySelectorAll('.theme-btn').forEach(b => b.classList.toggle('active', b.dataset.theme === t));
-      window.dispatchEvent(new CustomEvent('themechange', { detail: t }));
-    };
-    bar.querySelectorAll('.theme-btn').forEach(b => {
-      b.addEventListener('click', () => update(b.dataset.theme));
-    });
-    update(savedTheme);
-    window.addEventListener('keydown', (e) => {
-      if (e.key === '1') update('cyber');
-      if (e.key === '2') update('candy');
-      if (e.key === '3') update('cream');
-    });
-  });
-</script>
-
+<div id="root"></div>
+<script type="module" src="/src/main.jsx"></script>
 </body>
 </html>

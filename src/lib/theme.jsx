@@ -1,9 +1,6 @@
-// Theme system — 3 themes for 上号吗
-// cyber: dark neon gamer vibe
-// candy: bright pop stickers
-// cream: warm cream Y2K with noise
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
-const THEMES = {
+export const THEMES = {
   cyber: {
     name: '赛博荧光',
     dark: true,
@@ -15,11 +12,10 @@ const THEMES = {
     text: '#F5F5FF',
     textMuted: 'rgba(245,245,255,0.55)',
     textDim: 'rgba(245,245,255,0.35)',
-    accent: '#00FF88',       // 荧光绿 — 空闲
-    accent2: '#B84DFF',      // 紫 — 忙碌
-    accent3: '#FFD84D',      // 黄 — 睡觉 / 自定义
+    accent: '#00FF88',
+    accent2: '#B84DFF',
+    accent3: '#FFD84D',
     danger: '#FF3366',
-    // status colors
     free: '#00FF88',
     busy: '#B84DFF',
     sleep: '#5B6EE8',
@@ -45,9 +41,9 @@ const THEMES = {
     text: '#1a0a1f',
     textMuted: 'rgba(26,10,31,0.62)',
     textDim: 'rgba(26,10,31,0.42)',
-    accent: '#FF4D8D',       // 糖果粉
-    accent2: '#FFB547',      // 橙
-    accent3: '#5EC5FF',      // 天蓝
+    accent: '#FF4D8D',
+    accent2: '#FFB547',
+    accent3: '#5EC5FF',
     danger: '#FF3366',
     free: '#00C853',
     busy: '#FF4D8D',
@@ -61,7 +57,7 @@ const THEMES = {
     },
     shadow: '0 12px 40px rgba(255,77,141,0.18), 0 0 0 1.5px #1a0a1f',
     cardRadius: 28,
-    tagline: 'LET\'S PLAY',
+    tagline: "LET'S PLAY",
   },
   cream: {
     name: '奶油Y2K',
@@ -74,9 +70,9 @@ const THEMES = {
     text: '#1a1a1a',
     textMuted: 'rgba(26,26,26,0.65)',
     textDim: 'rgba(26,26,26,0.4)',
-    accent: '#E8452C',       // 草莓红
-    accent2: '#3350D8',      // 钴蓝
-    accent3: '#F5C518',      // 芥黄
+    accent: '#E8452C',
+    accent2: '#3350D8',
+    accent3: '#F5C518',
     danger: '#E8452C',
     free: '#2E8540',
     busy: '#E8452C',
@@ -94,21 +90,37 @@ const THEMES = {
   },
 };
 
-// Hook to get current theme reactively
-function useTheme() {
-  const [name, setName] = React.useState(window.__theme || 'cyber');
-  React.useEffect(() => {
-    const h = (e) => setName(e.detail);
-    window.addEventListener('themechange', h);
-    return () => window.removeEventListener('themechange', h);
+const ThemeContext = createContext(null);
+
+export function ThemeProvider({ children }) {
+  const [name, setName] = useState(() => localStorage.getItem('shanghao_theme') || 'cyber');
+
+  useEffect(() => {
+    localStorage.setItem('shanghao_theme', name);
+  }, [name]);
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === '1') setName('cyber');
+      if (e.key === '2') setName('candy');
+      if (e.key === '3') setName('cream');
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
   }, []);
-  return { ...THEMES[name], key: name };
+
+  const value = { ...THEMES[name], key: name, setTheme: setName };
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 
-// SVG status icons — stylized
-function StatusIcon({ status, size = 18, color = 'currentColor' }) {
+export function useTheme() {
+  const ctx = useContext(ThemeContext);
+  if (!ctx) throw new Error('useTheme must be used within ThemeProvider');
+  return ctx;
+}
+
+export function StatusIcon({ status, size = 18, color = 'currentColor' }) {
   if (status === 'free') {
-    // lightning bolt
     return (
       <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
         <path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z" fill={color}/>
@@ -116,7 +128,6 @@ function StatusIcon({ status, size = 18, color = 'currentColor' }) {
     );
   }
   if (status === 'busy') {
-    // minus in circle / do-not-disturb
     return (
       <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
         <circle cx="12" cy="12" r="10" fill={color}/>
@@ -125,7 +136,6 @@ function StatusIcon({ status, size = 18, color = 'currentColor' }) {
     );
   }
   if (status === 'sleep') {
-    // moon
     return (
       <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
         <path d="M20 14.5A8 8 0 019.5 4a8 8 0 1010.5 10.5z" fill={color}/>
@@ -139,12 +149,9 @@ function StatusIcon({ status, size = 18, color = 'currentColor' }) {
       </svg>
     );
   }
-  // custom — sparkle
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <path d="M12 2l2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5L12 2z" fill={color}/>
     </svg>
   );
 }
-
-Object.assign(window, { THEMES, useTheme, StatusIcon });

@@ -1,14 +1,16 @@
-// Top banner notification that appears when 3+ free
+import React, { useEffect, useState } from 'react';
+import { useTheme } from '../lib/theme.jsx';
+import { Avatar } from '../components/Avatar.jsx';
 
-function NotifyBanner({ theme, members, onDismiss, onJoin }) {
-  const t = theme;
+export function NotifyBanner({ members, onDismiss, onJoin }) {
+  const t = useTheme();
   const isCream = t.key === 'cream';
   const isCyber = t.key === 'cyber';
   const isCandy = t.key === 'candy';
 
   const freeMembers = members.filter(m => m.status === 'free');
-  const [showing, setShowing] = React.useState(false);
-  React.useEffect(() => {
+  const [showing, setShowing] = useState(false);
+  useEffect(() => {
     const tmr = setTimeout(() => setShowing(true), 50);
     return () => clearTimeout(tmr);
   }, []);
@@ -23,7 +25,7 @@ function NotifyBanner({ theme, members, onDismiss, onJoin }) {
 
   return (
     <div style={{
-      position: 'absolute', top: 12, left: 10, right: 10, zIndex: 100,
+      position: 'fixed', top: 'calc(12px + env(safe-area-inset-top))', left: 10, right: 10, zIndex: 100,
       transform: showing ? 'translateY(0)' : 'translateY(-120%)',
       opacity: showing ? 1 : 0,
       transition: 'transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s',
@@ -39,7 +41,6 @@ function NotifyBanner({ theme, members, onDismiss, onJoin }) {
         backdropFilter: 'blur(20px) saturate(180%)',
         WebkitBackdropFilter: 'blur(20px) saturate(180%)',
       }}>
-        {/* Top row */}
         <div style={{
           display: 'flex', alignItems: 'center', gap: 10,
           fontFamily: t.font.mono, fontSize: 11, letterSpacing: '0.1em',
@@ -60,7 +61,6 @@ function NotifyBanner({ theme, members, onDismiss, onJoin }) {
           </span>
         </div>
 
-        {/* Headline */}
         <div style={{
           fontFamily: t.font.title, fontSize: 22, lineHeight: 1.15,
           color: textColor, marginBottom: 10,
@@ -71,7 +71,6 @@ function NotifyBanner({ theme, members, onDismiss, onJoin }) {
           }}>{freeMembers.length}个人</b>都空闲 · 上号？
         </div>
 
-        {/* Avatar stack */}
         <div style={{
           display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12,
         }}>
@@ -90,13 +89,12 @@ function NotifyBanner({ theme, members, onDismiss, onJoin }) {
           </div>
         </div>
 
-        {/* CTAs */}
         <div style={{ display: 'flex', gap: 8 }}>
           <button onClick={onJoin} style={{
             flex: 1, height: 42,
             borderRadius: isCream ? 12 : 999,
             background: textColor,
-            color: bg.includes('gradient') ? '#fff' : (isCream ? t.accent : t.accent),
+            color: bg.includes('gradient') ? '#fff' : t.accent,
             border: 'none', cursor: 'pointer',
             fontFamily: t.font.title, fontSize: 18,
           }}>
@@ -114,7 +112,6 @@ function NotifyBanner({ theme, members, onDismiss, onJoin }) {
         </div>
       </div>
 
-      {/* decorative sparkle for candy */}
       {isCandy && (
         <div style={{
           position: 'absolute', top: -8, right: 22,
@@ -124,5 +121,3 @@ function NotifyBanner({ theme, members, onDismiss, onJoin }) {
     </div>
   );
 }
-
-Object.assign(window, { NotifyBanner });

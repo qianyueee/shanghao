@@ -1,5 +1,8 @@
-// Home — main screen. Shows all group members' status at a glance.
-// Tap my-status banner at top to open StatusSheet.
+import React from 'react';
+import { useTheme, StatusIcon } from '../lib/theme.jsx';
+import { Phone } from '../components/Phone.jsx';
+import { Avatar } from '../components/Avatar.jsx';
+import { STATUS_LABELS } from '../lib/constants.js';
 
 function MyStatusBanner({ theme, me, onTap, notifyActive }) {
   const t = theme;
@@ -19,7 +22,6 @@ function MyStatusBanner({ theme, me, onTap, notifyActive }) {
       position: 'relative', overflow: 'hidden',
       cursor: 'pointer',
     }}>
-      {/* bg decoration */}
       {isCandy && (
         <div style={{
           position: 'absolute', right: -20, top: -20,
@@ -54,14 +56,13 @@ function MyStatusBanner({ theme, me, onTap, notifyActive }) {
             fontFamily: t.font.title, fontSize: 44, lineHeight: 1, color: isCandy ? '#fff' : t.text,
             marginBottom: 6,
           }}>{label.zh}</div>
-          {me.until && (
+          {me.until ? (
             <div style={{ fontSize: 13, color: isCandy ? 'rgba(255,255,255,0.85)' : t.textMuted, fontFamily: t.font.body }}>
               ⏱ 还剩 <b style={{ color: isCandy ? '#fff' : t.text }}>{me.until} 分钟</b>
               {me.note && <span> · 留言：{me.note}</span>}
             </div>
-          )}
+          ) : null}
         </div>
-        {/* big circular status glyph */}
         <div style={{
           width: 72, height: 72, borderRadius: '50%',
           background: isCandy ? 'rgba(255,255,255,0.25)' : (isCream ? sColor : 'rgba(255,255,255,0.18)'),
@@ -76,7 +77,6 @@ function MyStatusBanner({ theme, me, onTap, notifyActive }) {
         </div>
       </div>
 
-      {/* bottom hint row */}
       <div style={{
         marginTop: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         paddingTop: 12,
@@ -84,7 +84,7 @@ function MyStatusBanner({ theme, me, onTap, notifyActive }) {
         fontSize: 12, fontFamily: t.font.mono,
         color: isCandy ? 'rgba(255,255,255,0.85)' : t.textMuted,
       }}>
-        <span>LAST UPDATE · 2 MIN AGO</span>
+        <span>LAST UPDATE · 现在</span>
         {notifyActive ? (
           <span style={{ color: isCandy ? '#fff' : t.free, fontWeight: 600 }}>● LIVE</span>
         ) : null}
@@ -105,7 +105,7 @@ function MemberCard({ m, theme, featured }) {
       padding: 14,
       borderRadius: isCream ? 18 : 22,
       background: featured
-        ? (isCyber ? `linear-gradient(145deg, ${sColor}22 0%, transparent 80%)` : (isCream ? '#fff' : '#fff'))
+        ? (isCyber ? `linear-gradient(145deg, ${sColor}22 0%, transparent 80%)` : '#fff')
         : t.surface,
       border: featured
         ? `1.5px solid ${sColor}${isCyber ? '66' : ''}`
@@ -117,7 +117,6 @@ function MemberCard({ m, theme, featured }) {
       position: 'relative', overflow: 'hidden',
       opacity: m.status === 'offline' ? 0.55 : 1,
     }}>
-      {/* top row: avatar + name + status */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         <div style={{ position: 'relative' }}>
           <Avatar member={m} size={40} theme={t} />
@@ -141,7 +140,6 @@ function MemberCard({ m, theme, featured }) {
         </div>
       </div>
 
-      {/* status label + optional note */}
       <div style={{
         padding: '8px 10px',
         borderRadius: isCream ? 10 : 12,
@@ -149,7 +147,7 @@ function MemberCard({ m, theme, featured }) {
         border: isCream ? `1px solid ${sColor}` : 'none',
       }}>
         <div style={{
-          fontFamily: t.font.title, fontSize: 20, color: isCyber ? sColor : sColor,
+          fontFamily: t.font.title, fontSize: 20, color: sColor,
           lineHeight: 1.1, marginBottom: m.note ? 2 : 0,
           textShadow: isCyber && m.status === 'free' ? `0 0 8px ${sColor}88` : 'none',
         }}>{label.zh}</div>
@@ -160,136 +158,6 @@ function MemberCard({ m, theme, featured }) {
         )}
       </div>
     </div>
-  );
-}
-
-function HomeScreen({ theme, group, me, onStatusTap, onTriggerNotify, notifyActive }) {
-  const t = theme;
-  const isCream = t.key === 'cream';
-  const isCyber = t.key === 'cyber';
-  const isCandy = t.key === 'candy';
-
-  // split members: my card first, then free, then others
-  const others = group.members.filter(m => m.id !== 'me');
-  const sorted = [...others].sort((a,b) => {
-    const order = { free: 0, custom: 1, busy: 2, sleep: 3, offline: 4 };
-    return (order[a.status] ?? 5) - (order[b.status] ?? 5);
-  });
-
-  const freeCount = group.members.filter(m => m.status === 'free').length;
-
-  return (
-    <Phone theme={t}>
-      {/* Top header bar (in-place, under status bar) */}
-      <div style={{
-        padding: '8px 16px 12px', display: 'flex', alignItems: 'center', gap: 10,
-      }}>
-        {/* Group selector pill */}
-        <div style={{
-          flex: 1, display: 'flex', alignItems: 'center', gap: 10,
-          padding: '8px 12px 8px 8px',
-          borderRadius: 999,
-          background: t.surface,
-          border: `1px solid ${t.border}`,
-          boxShadow: isCream ? '2px 2px 0 #1a1a1a' : 'none',
-        }}>
-          <div style={{
-            width: 32, height: 32, borderRadius: 10,
-            background: `linear-gradient(135deg, ${t.accent} 0%, ${t.accent2} 100%)`,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontFamily: t.font.title, fontSize: 18, color: '#fff',
-          }}>队</div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontFamily: t.font.body, fontWeight: 600, fontSize: 14, color: t.text, lineHeight: 1.1 }}>
-              {group.name}
-            </div>
-            <div style={{ fontSize: 10, fontFamily: t.font.mono, color: t.textMuted }}>
-              {group.members.length} 人 · {freeCount} 空闲
-            </div>
-          </div>
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
-            <path d="M6 9l6 6 6-6" stroke={t.textMuted} strokeWidth="2.5" strokeLinecap="round"/>
-          </svg>
-        </div>
-        <button onClick={onTriggerNotify} style={{
-          width: 44, height: 44, borderRadius: 999,
-          background: t.surface, border: `1px solid ${t.border}`,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: isCream ? '2px 2px 0 #1a1a1a' : 'none',
-          cursor: 'pointer', padding: 0,
-        }}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M6 8a6 6 0 1112 0v5l2 3H4l2-3V8z" stroke={t.text} strokeWidth="2" strokeLinejoin="round"/>
-            <circle cx="18" cy="6" r="3" fill={t.accent}/>
-          </svg>
-        </button>
-      </div>
-
-      {/* Scrollable content */}
-      <div style={{
-        flex: 1, overflowY: 'auto',
-        padding: '4px 0 100px',
-      }}>
-        {/* My status banner */}
-        <MyStatusBanner theme={t} me={me} onTap={onStatusTap} notifyActive={notifyActive} />
-
-        {/* Free-count hero */}
-        <div style={{
-          margin: '22px 16px 14px',
-          display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap',
-        }}>
-          <div style={{
-            fontFamily: t.font.title, fontSize: 28, color: t.text, lineHeight: 1.05,
-            whiteSpace: 'nowrap',
-          }}>
-            现在 <span style={{ color: t.free, textShadow: isCyber ? `0 0 12px ${t.free}88` : 'none' }}>{freeCount}</span> 人空闲
-          </div>
-          {freeCount >= 3 && (
-            <div style={{
-              fontFamily: t.font.mono, fontSize: 10, padding: '3px 8px',
-              borderRadius: 6, background: t.free, color: isCream ? '#fff' : '#000',
-              letterSpacing: '0.1em', fontWeight: 700,
-              animation: 'pulse 1.4s ease-in-out infinite',
-            }}>READY</div>
-          )}
-        </div>
-        <div style={{
-          margin: '0 16px 18px',
-          fontSize: 13, color: t.textMuted, lineHeight: 1.5,
-        }}>
-          {freeCount >= 3 ? '凑齐了。点右上角小铃铛喊所有人上号 ↑' : '还差 ' + Math.max(0, 3 - freeCount) + ' 人就能开黑 · 再等等'}
-        </div>
-
-        {/* Section: 现在空闲 */}
-        <SectionLabel theme={t} label="现在空闲" en="FREE NOW" count={freeCount} color={t.free} />
-        <div style={{
-          display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, margin: '0 16px',
-        }}>
-          {sorted.filter(m => m.status === 'free').map(m => (
-            <MemberCard key={m.id} m={m} theme={t} featured />
-          ))}
-          {sorted.filter(m => m.status === 'custom').map(m => (
-            <MemberCard key={m.id} m={m} theme={t} featured />
-          ))}
-        </div>
-
-        {/* Section: 暂时不在 */}
-        <div style={{ height: 22 }} />
-        <SectionLabel theme={t} label="暂时不在" en="LATER" color={t.textMuted} />
-        <div style={{
-          display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, margin: '0 16px',
-        }}>
-          {sorted.filter(m => ['busy','sleep','offline'].includes(m.status)).map(m => (
-            <MemberCard key={m.id} m={m} theme={t} />
-          ))}
-        </div>
-      </div>
-
-      {/* Bottom tab bar */}
-      <BottomTabBar theme={t} />
-
-      <style>{`@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.55; } }`}</style>
-    </Phone>
   );
 }
 
@@ -322,7 +190,8 @@ function BottomTabBar({ theme }) {
   ];
   return (
     <div style={{
-      position: 'absolute', left: 12, right: 12, bottom: 14, zIndex: 30,
+      position: 'absolute', left: 12, right: 12,
+      bottom: 'calc(14px + env(safe-area-inset-bottom))', zIndex: 30,
       display: 'flex', gap: 6,
       padding: 6,
       borderRadius: isCream ? 22 : 999,
@@ -371,4 +240,137 @@ function TabIcon({ kind, size }) {
   );
 }
 
-Object.assign(window, { HomeScreen });
+export function HomeScreen({ group, me, onStatusTap, onTriggerNotify, notifyActive, onSwitchGroup, onSignOut }) {
+  const t = useTheme();
+  const isCyber = t.key === 'cyber';
+  const isCream = t.key === 'cream';
+
+  const others = group.members.filter(m => m.id !== me.id);
+  const sorted = [...others].sort((a, b) => {
+    const order = { free: 0, custom: 1, busy: 2, sleep: 3, offline: 4 };
+    return (order[a.status] ?? 5) - (order[b.status] ?? 5);
+  });
+
+  const freeCount = group.members.filter(m => m.status === 'free').length;
+
+  return (
+    <Phone theme={t}>
+      <div style={{
+        padding: '8px 16px 12px', display: 'flex', alignItems: 'center', gap: 8,
+      }}>
+        <div onClick={onSwitchGroup} style={{
+          flex: 1, display: 'flex', alignItems: 'center', gap: 10,
+          padding: '8px 12px 8px 8px',
+          borderRadius: 999,
+          background: t.surface,
+          border: `1px solid ${t.border}`,
+          boxShadow: isCream ? '2px 2px 0 #1a1a1a' : 'none',
+          cursor: onSwitchGroup ? 'pointer' : 'default',
+        }}>
+          <div style={{
+            width: 32, height: 32, borderRadius: 10,
+            background: `linear-gradient(135deg, ${t.accent} 0%, ${t.accent2} 100%)`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontFamily: t.font.title, fontSize: 18, color: '#fff',
+          }}>队</div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontFamily: t.font.body, fontWeight: 600, fontSize: 14, color: t.text, lineHeight: 1.1 }}>
+              {group.name}
+            </div>
+            <div style={{ fontSize: 10, fontFamily: t.font.mono, color: t.textMuted }}>
+              {group.members.length} 人 · {freeCount} 空闲
+            </div>
+          </div>
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
+            <path d="M6 9l6 6 6-6" stroke={t.textMuted} strokeWidth="2.5" strokeLinecap="round"/>
+          </svg>
+        </div>
+        <button onClick={onTriggerNotify} style={{
+          width: 44, height: 44, borderRadius: 999,
+          background: t.surface, border: `1px solid ${t.border}`,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: isCream ? '2px 2px 0 #1a1a1a' : 'none',
+          cursor: 'pointer', padding: 0, flexShrink: 0,
+        }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M6 8a6 6 0 1112 0v5l2 3H4l2-3V8z" stroke={t.text} strokeWidth="2" strokeLinejoin="round"/>
+            <circle cx="18" cy="6" r="3" fill={t.accent}/>
+          </svg>
+        </button>
+        {onSignOut && (
+          <button onClick={onSignOut} title="退出登录" style={{
+            width: 44, height: 44, borderRadius: 999,
+            background: t.surface, border: `1px solid ${t.border}`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: isCream ? '2px 2px 0 #1a1a1a' : 'none',
+            cursor: 'pointer', padding: 0, flexShrink: 0,
+          }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M15 5H6a1 1 0 00-1 1v12a1 1 0 001 1h9" stroke={t.text} strokeWidth="2" strokeLinecap="round"/>
+              <path d="M13 12h8m0 0l-3-3m3 3l-3 3" stroke={t.text} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+        )}
+      </div>
+
+      <div style={{
+        flex: 1, overflowY: 'auto',
+        padding: '4px 0 calc(100px + env(safe-area-inset-bottom))',
+      }}>
+        <MyStatusBanner theme={t} me={me} onTap={onStatusTap} notifyActive={notifyActive} />
+
+        <div style={{
+          margin: '22px 16px 14px',
+          display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap',
+        }}>
+          <div style={{
+            fontFamily: t.font.title, fontSize: 28, color: t.text, lineHeight: 1.05,
+            whiteSpace: 'nowrap',
+          }}>
+            现在 <span style={{ color: t.free, textShadow: isCyber ? `0 0 12px ${t.free}88` : 'none' }}>{freeCount}</span> 人空闲
+          </div>
+          {freeCount >= 3 && (
+            <div style={{
+              fontFamily: t.font.mono, fontSize: 10, padding: '3px 8px',
+              borderRadius: 6, background: t.free, color: isCream ? '#fff' : '#000',
+              letterSpacing: '0.1em', fontWeight: 700,
+              animation: 'pulse 1.4s ease-in-out infinite',
+            }}>READY</div>
+          )}
+        </div>
+        <div style={{
+          margin: '0 16px 18px',
+          fontSize: 13, color: t.textMuted, lineHeight: 1.5,
+        }}>
+          {freeCount >= 3 ? '凑齐了。点右上角小铃铛喊所有人上号 ↑' : '还差 ' + Math.max(0, 3 - freeCount) + ' 人就能开黑 · 再等等'}
+        </div>
+
+        <SectionLabel theme={t} label="现在空闲" en="FREE NOW" count={freeCount} color={t.free} />
+        <div style={{
+          display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, margin: '0 16px',
+        }}>
+          {sorted.filter(m => m.status === 'free').map(m => (
+            <MemberCard key={m.id} m={m} theme={t} featured />
+          ))}
+          {sorted.filter(m => m.status === 'custom').map(m => (
+            <MemberCard key={m.id} m={m} theme={t} featured />
+          ))}
+        </div>
+
+        <div style={{ height: 22 }} />
+        <SectionLabel theme={t} label="暂时不在" en="LATER" color={t.textMuted} />
+        <div style={{
+          display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, margin: '0 16px',
+        }}>
+          {sorted.filter(m => ['busy','sleep','offline'].includes(m.status)).map(m => (
+            <MemberCard key={m.id} m={m} theme={t} />
+          ))}
+        </div>
+      </div>
+
+      <BottomTabBar theme={t} />
+
+      <style>{`@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.55; } }`}</style>
+    </Phone>
+  );
+}

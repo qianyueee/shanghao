@@ -1,13 +1,14 @@
-// Status switch bottom sheet
+import React, { useState } from 'react';
+import { useTheme, StatusIcon } from '../lib/theme.jsx';
 
-function StatusSheet({ theme, me, onClose, onSave }) {
-  const t = theme;
+export function StatusSheet({ me, onClose, onSave }) {
+  const t = useTheme();
   const isCream = t.key === 'cream';
   const isCyber = t.key === 'cyber';
 
-  const [status, setStatus] = React.useState(me.status);
-  const [until, setUntil] = React.useState(me.until || 60);
-  const [note, setNote] = React.useState(me.note || '');
+  const [status, setStatus] = useState(me.status);
+  const [until, setUntil] = useState(me.until || 60);
+  const [note, setNote] = useState(me.note || '');
 
   const options = [
     { key: 'free',   zh: '上号!',  en: 'FREE',   desc: '可以马上开黑', color: t.free },
@@ -20,20 +21,19 @@ function StatusSheet({ theme, me, onClose, onSave }) {
 
   return (
     <div style={{
-      position: 'absolute', inset: 0, zIndex: 80,
+      position: 'fixed', inset: 0, zIndex: 80,
       background: 'rgba(0,0,0,0.5)',
       display: 'flex', alignItems: 'flex-end',
     }} onClick={onClose}>
       <div onClick={e => e.stopPropagation()} style={{
-        width: '100%', maxHeight: '82%',
+        width: '100%', maxHeight: '85vh',
         background: t.bgGrad || t.bg,
         borderTopLeftRadius: 32, borderTopRightRadius: 32,
-        padding: '14px 20px 28px',
+        padding: '14px 20px calc(28px + env(safe-area-inset-bottom))',
         border: isCream ? '1.5px solid #1a1a1a' : 'none',
         borderBottom: 'none',
         overflow: 'auto',
       }}>
-        {/* handle */}
         <div style={{
           width: 40, height: 5, borderRadius: 100, background: t.textDim,
           margin: '0 auto 16px',
@@ -48,7 +48,6 @@ function StatusSheet({ theme, me, onClose, onSave }) {
           </div>
         </div>
 
-        {/* option grid */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
           {options.map(o => {
             const active = status === o.key;
@@ -57,7 +56,7 @@ function StatusSheet({ theme, me, onClose, onSave }) {
                 padding: '14px 14px',
                 borderRadius: isCream ? 16 : 18,
                 background: active
-                  ? (isCyber ? `${o.color}22` : (isCream ? o.color : o.color))
+                  ? (isCyber ? `${o.color}22` : o.color)
                   : t.surface,
                 border: isCream ? `1.5px solid #1a1a1a` : `1.5px solid ${active ? o.color : t.border}`,
                 boxShadow: isCream ? (active ? `4px 4px 0 ${o.color}` : '2px 2px 0 rgba(0,0,0,0.12)') : (isCyber && active ? `0 0 16px ${o.color}55` : 'none'),
@@ -87,7 +86,6 @@ function StatusSheet({ theme, me, onClose, onSave }) {
           })}
         </div>
 
-        {/* Duration picker (only when free or custom) */}
         {(status === 'free' || status === 'custom') && (
           <>
             <div style={{ fontFamily: t.font.mono, fontSize: 11, color: t.textMuted, letterSpacing: '0.12em', marginBottom: 10 }}>
@@ -110,16 +108,10 @@ function StatusSheet({ theme, me, onClose, onSave }) {
                   </div>
                 );
               })}
-              <div style={{
-                padding: '10px 16px', borderRadius: 999,
-                background: t.surface, border: `1.5px dashed ${t.border}`,
-                color: t.textMuted, fontFamily: t.font.body, fontSize: 14,
-              }}>+ 自定义</div>
             </div>
           </>
         )}
 
-        {/* Note */}
         <div style={{ fontFamily: t.font.mono, fontSize: 11, color: t.textMuted, letterSpacing: '0.12em', marginBottom: 10 }}>
           留言 · OPTIONAL
         </div>
@@ -143,7 +135,6 @@ function StatusSheet({ theme, me, onClose, onSave }) {
           />
         </div>
 
-        {/* Save */}
         <button onClick={() => onSave({ status, until, note })} style={{
           width: '100%', height: 58,
           borderRadius: isCream ? 16 : 999,
@@ -160,5 +151,3 @@ function StatusSheet({ theme, me, onClose, onSave }) {
     </div>
   );
 }
-
-Object.assign(window, { StatusSheet });
